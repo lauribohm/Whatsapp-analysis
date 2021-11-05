@@ -12,10 +12,10 @@ def startsWithDateAndTime(s):
   
 def FindAuthor(s):
     patterns = [
-        '[\w]+:',                          # first name
-        '[\w]+[\s]+[\w]+:',                # first name & last name
-        '([\w]+[\s]+[\w]+[\s]+[\w]+):',    # first name & second name & last name 
-        '([\w]+)[\u263a-\U0001f999]+:',    # first name + emoji              
+        '[\w]+:',                          
+        '[\w]+[\s]+[\w]+:',                
+        '([\w]+[\s]+[\w]+[\s]+[\w]+):',    
+        '([\w]+)[\u263a-\U0001f999]+:',                
     ]
     pattern = '^' + '|'.join(patterns)
     result = re.search(pattern, s)
@@ -53,8 +53,6 @@ def transformDateTime(dateTime):
     dt = date + ' ' + time 
     return dt
 
-## start
-
 parsedData = [] 
 
 conversationPath = './data/_chat.txt' 
@@ -67,8 +65,6 @@ with open(conversationPath, encoding="utf-8") as fp:
         line = fp.readline()
         c = c+1
         if ('image omitted' in line):
-            #line = ' '.join(line.split())
-            #line = re.sub("[\n\t\s]*", " ", line)
             line = line[1:]
         else:
             line = line.strip('\t')
@@ -93,26 +89,19 @@ chat = pd.DataFrame(parsedData, columns=['DateTime', 'Author', 'Message'])
 
 chat["DateTime"] = pd.to_datetime(chat["DateTime"])
 
-#new column weekday
 chat['weekday'] = chat['DateTime'].apply(lambda x: x.day_name())
 
-# new column month_sent
 chat['month_sent'] = chat['DateTime'].apply(lambda x: x.month_name()) 
 
-#column date
 chat['date'] = [d.date() for d in chat['DateTime']] 
 
-#column hour
 chat['hour'] = [d.time().hour for d in chat['DateTime']]
 
-#column urlcount
 URLPATTERN = r'(https://\S+)'
 chat['urlcount'] = chat.Message.apply(lambda x: re.findall(URLPATTERN, x)).str.len()
 
-#column Letter_Count
 chat['Letter_Count'] = chat['Message'].apply(lambda s : len(s))
 
-#column Word_Count
 chat['Word_Count'] = chat['Message'].apply(lambda s : len(s.split(' ')))
 
 def get_emoji(text):
@@ -135,7 +124,5 @@ def get_emoji_string(text):
         if (len(c) > 1):
             emoji_list.append(c)
     return emoji_list
-
-#chat["emoji_string"] = chat["Message"].apply(get_emoji_string)
 
 chat.to_csv('results/_result.csv', encoding=('utf-8'))
